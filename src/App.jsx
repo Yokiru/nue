@@ -29,7 +29,7 @@ function AppContent() {
       <main className={`main-content ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <Routes>
           <Route path="/" element={<Home isSidebarOpen={isSidebarOpen} />} />
-          <Route path="/result" element={<Result />} />
+          <Route path="/result" element={<Result toggleSidebar={toggleSidebar} />} />
         </Routes>
       </main>
     </div>

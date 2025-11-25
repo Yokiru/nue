@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Home } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, Menu } from 'lucide-react';
 import Card from '../components/Card';
 import FeedbackCard from '../components/FeedbackCard';
 import QuizCard from '../components/QuizCard';
@@ -9,7 +9,7 @@ import { generateExplanation, generateClarification, generateQuizQuestions } fro
 import { supabase } from '../services/supabase';
 import './Result.css';
 
-const Result = () => {
+const Result = ({ toggleSidebar }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const query = location.state?.query || "Learning";
@@ -274,10 +274,17 @@ const Result = () => {
 
     return (
         <div className="result-container">
-            <header className="result-header">
+            <header className="result-header sticky">
+                <button
+                    onClick={toggleSidebar}
+                    className="icon-button sidebar-toggle"
+                    aria-label="Toggle Sidebar"
+                >
+                    <Menu size={24} strokeWidth={1.5} />
+                </button>
                 <h1 className="topic-title">{displayTitle}</h1>
                 <button onClick={handleHome} className="icon-button" aria-label="Home">
-                    <Home size={24} />
+                    <Home size={24} strokeWidth={1.5} />
                 </button>
             </header>
 
