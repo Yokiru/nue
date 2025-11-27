@@ -12,12 +12,12 @@ const Sidebar = ({ isOpen, toggle }) => {
     const [history, setHistory] = useState([]);
     const navigate = useNavigate();
     const { t } = useLanguage();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
 
     useEffect(() => {
         const loadHistory = async () => {
             // Only load history if user is authenticated
-            if (!isAuthenticated) {
+            if (!isAuthenticated || !user) {
                 setHistory([]);
                 return;
             }
@@ -26,6 +26,7 @@ const Sidebar = ({ isOpen, toggle }) => {
                 const { data, error } = await supabase
                     .from('history')
                     .select('*')
+                    .eq('user_id', user.id)  // CRITICAL: Filter by user_id
                     .order('created_at', { ascending: false })
                     .limit(10);
 
@@ -54,7 +55,7 @@ const Sidebar = ({ isOpen, toggle }) => {
             supabase.removeChannel(channel);
             window.removeEventListener('historyUpdated', loadHistory);
         };
-    }, [isAuthenticated]);
+    }, [isAuthenticated, user]);
 
     const handleDelete = async (e, itemToDelete) => {
         e.stopPropagation();
