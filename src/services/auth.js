@@ -55,28 +55,18 @@ export const authService = {
      */
     async checkEmailExists(email) {
         try {
-            // Try to get user by email from auth.users (admin only)
-            // Since we can't access auth.users directly, we'll use a workaround:
-            // Try to sign in with a dummy password and check the error
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password: 'dummy-check-password-' + Math.random(),
+            const { data, error } = await supabase.rpc('check_email_exists', {
+                email_to_check: email
             });
 
-            // If error message indicates invalid credentials, email exists
-            // If error message indicates user not found, email doesn't exist
             if (error) {
-                if (error.message.includes('Invalid login credentials') ||
-                    error.message.includes('Email not confirmed')) {
-                    return { exists: true, error: null };
-                } else {
-                    return { exists: false, error: null };
-                }
+                console.error('Error checking email:', error);
+                return { exists: false, error };
             }
 
-            // If somehow successful (shouldn't happen with random password)
-            return { exists: true, error: null };
+            return { exists: data, error: null };
         } catch (error) {
+            console.error('Exception checking email:', error);
             return { exists: false, error };
         }
     },
