@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/auth';
 import './Register.css';
 
 const Register = () => {
@@ -81,8 +82,21 @@ const Register = () => {
         return true;
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (!validateStep()) return;
+
+        // Check if email already exists on step 1
+        if (step === 1) {
+            setError('Checking email...');
+            const { exists } = await authService.checkEmailExists(formData.email);
+
+            if (exists) {
+                setError('This email is already registered. Please sign in or use a different email.');
+                return;
+            }
+            setError('');
+        }
+
         setAnimationDirection('forward');
         setTimeout(() => setStep(step + 1), 50);
     };
