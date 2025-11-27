@@ -7,11 +7,13 @@ import FeedbackCard from '../components/FeedbackCard';
 import QuizCard from '../components/QuizCard';
 import { generateExplanation, generateClarification, generateQuizQuestions } from '../services/gemini';
 import { supabase } from '../services/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import './Result.css';
 
 const Result = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const query = location.state?.query || "Learning";
     const quizMode = location.state?.quizMode || false;
 
@@ -151,11 +153,18 @@ const Result = () => {
 
     const saveToHistory = async (query, content) => {
         try {
-            // Check if already exists
+            // Only save if user is logged in
+            if (!user) {
+                console.log('Guest user - not saving history');
+                return;
+            }
+
+            // Check if already exists for this user
             const { data: existing } = await supabase
                 .from('history')
                 .select('id')
                 .eq('query', query)
+                .eq('user_id', user.id)
                 .limit(1)
                 .maybeSingle();
 
@@ -166,11 +175,15 @@ const Result = () => {
                     .update({ created_at: new Date().toISOString(), content: content })
                     .eq('id', existing.id);
             } else {
-                // Insert new
+                // Insert new with user_id
                 const { error } = await supabase
                     .from('history')
                     .insert([
-                        { query, content }
+                        {
+                            query,
+                            content,
+                            user_id: user.id
+                        }
                     ]);
                 if (error) throw error;
             }
