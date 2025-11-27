@@ -127,7 +127,19 @@ export const AuthProvider = ({ children }) => {
         try {
             console.log('Logout started');
             setLoading(true);
-            const { error } = await authService.signOut();
+
+            // Set a timeout to force logout if Supabase takes too long
+            const timeoutPromise = new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log('Logout timeout - forcing local logout');
+                    resolve({ error: null });
+                }, 3000); // 3 second timeout
+            });
+
+            const signOutPromise = authService.signOut();
+
+            // Race between actual signOut and timeout
+            const { error } = await Promise.race([signOutPromise, timeoutPromise]);
 
             if (error) {
                 console.error("Logout error:", error);
@@ -147,6 +159,11 @@ export const AuthProvider = ({ children }) => {
             setSession(null);
             setLoading(false);
             console.log('Logout finished');
+
+            // Force redirect to login page
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 100);
         }
     };
 
