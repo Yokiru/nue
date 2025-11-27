@@ -268,6 +268,9 @@ const Result = () => {
     if (loading) {
         return (
             <div className="result-container loading">
+                <button onClick={handleHome} className="icon-button" aria-label="Home">
+                    <Home size={24} />
+                </button>
                 <div className="loader"></div>
                 <p className="loading-text">Generating explanation for "{query}"...</p>
             </div>
