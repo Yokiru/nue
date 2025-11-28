@@ -45,17 +45,22 @@ export const AuthProvider = ({ children }) => {
 
     const loadUser = async () => {
         try {
+            console.log('🔐 AuthContext: loadUser started');
             setLoading(true);
             const { user, session } = await authService.getCurrentUser();
+            console.log('🔐 AuthContext: getCurrentUser result', { hasUser: !!user, hasSession: !!session });
+
             setUser(user);
             setSession(session);
 
             if (user) {
+                console.log('🔐 AuthContext: Loading profile for', user.id);
                 await loadUserProfile(user.id);
             }
         } catch (error) {
-            console.error('Error loading user:', error);
+            console.error('🔐 AuthContext: Error loading user:', error);
         } finally {
+            console.log('🔐 AuthContext: loadUser finished, setting loading to false');
             setLoading(false);
         }
     };
