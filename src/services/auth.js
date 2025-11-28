@@ -79,10 +79,18 @@ export const authService = {
      */
     async signIn(email, password) {
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
+            // Create a timeout promise
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Sign In Timeout')), 10000) // 10s timeout for login
+            );
+
+            const { data, error } = await Promise.race([
+                supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                }),
+                timeoutPromise
+            ]);
 
             if (error) throw error;
 
