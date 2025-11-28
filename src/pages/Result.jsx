@@ -57,11 +57,18 @@ const Result = () => {
             setError(null);
 
             try {
-                // 1. Check Supabase history first
-                const { data: cachedData, error: dbError } = await supabase
+                // 1. Check Supabase history first (filter by user_id if logged in)
+                let cacheQuery = supabase
                     .from('history')
                     .select('*')
-                    .eq('query', query)
+                    .eq('query', query);
+
+                // Only filter by user_id if user is logged in
+                if (user) {
+                    cacheQuery = cacheQuery.eq('user_id', user.id);
+                }
+
+                const { data: cachedData, error: dbError } = await cacheQuery
                     .limit(1)
                     .maybeSingle();
 
@@ -151,10 +158,14 @@ const Result = () => {
 
     const maintainHistoryLimit = async () => {
         try {
-            // Fetch IDs of all items, ordered by newest first
+            // Only maintain limit if user is logged in
+            if (!user) return;
+
+            // Fetch IDs of all items for this user, ordered by newest first
             const { data } = await supabase
                 .from('history')
                 .select('id')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             if (data && data.length > 10) {
