@@ -13,7 +13,7 @@ import './Result.css';
 const Result = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
 
     // Get query from URL search params (persists on refresh) or fallback to location.state
     const searchParams = new URLSearchParams(location.search);
@@ -55,6 +55,12 @@ const Result = () => {
     }, [loading, loadingMessages.length]);
 
     useEffect(() => {
+        // Wait for auth to load
+        if (authLoading) {
+            console.log('⏳ Waiting for auth to load...');
+            return;
+        }
+
         // Skip if query is default/empty
         if (!query || query === "Learning") {
             console.log('⏭️ Skipping fetch - invalid query');
@@ -142,7 +148,7 @@ const Result = () => {
 
         console.log('🚀 useEffect triggered, calling fetchExplanation');
         fetchExplanation();
-    }, [query]);
+    }, [query, authLoading]);
 
     // Generate quiz questions after cards are loaded and quiz mode is on
     useEffect(() => {
