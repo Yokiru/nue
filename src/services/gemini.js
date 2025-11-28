@@ -37,17 +37,18 @@ const callGeminiAPI = async (action, payload, retryCount = 0) => {
                 return callGeminiAPI(action, payload, retryCount + 1);
             }
 
-            throw new Error("Request timeout. The AI service is taking too long to respond. Please try again.");
+            throw new Error("Request timeout. Please try again.");
         }
 
         // Handle network errors
         if (error.message.includes('Failed to fetch')) {
-            throw new Error("Network error. Please check your internet connection.");
+            throw new Error("Network error. Please check your connection.");
         }
 
         console.error("Failed to call Gemini API:", error);
         throw error;
     }
+
 };
 
 export const generateExplanation = async (topic) => {
