@@ -28,10 +28,32 @@ const Result = () => {
     const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
 
     const [displayTitle, setDisplayTitle] = useState(query);
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+    // Dynamic loading messages
+    const loadingMessages = [
+        "Analyzing topic...",
+        "Generating explanation...",
+        "Preparing content...",
+        "Almost done...",
+        "Finalizing..."
+    ];
+
+    // Rotate loading messages every 3 seconds
+    useEffect(() => {
+        if (!loading) return;
+
+        const interval = setInterval(() => {
+            setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [loading, loadingMessages.length]);
 
     useEffect(() => {
         const fetchExplanation = async () => {
             setLoading(true);
+            setLoadingMessageIndex(0); // Reset message index
             setError(null);
 
             try {
@@ -272,7 +294,8 @@ const Result = () => {
                     <Home size={24} />
                 </button>
                 <div className="loader"></div>
-                <p className="loading-text">Generating explanation for "{query}"...</p>
+                <p className="loading-text">{loadingMessages[loadingMessageIndex]}</p>
+                <p className="loading-subtext">Generating explanation for "{query}"</p>
             </div>
         );
     }

@@ -1,13 +1,23 @@
-// Helper function to call the Vercel Serverless Function
-const callGeminiAPI = async (action, payload) => {
+// Helper function to call the Vercel Serverless Function with timeout and retry
+const callGeminiAPI = async (action, payload, retryCount = 0) => {
+    const MAX_RETRIES = 1;
+    const TIMEOUT_MS = 30000; // 30 seconds
+
     try {
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
         const response = await fetch('/api/gemini', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ action, payload }),
+            signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             throw new Error(`API Error: ${response.statusText}`);
@@ -16,6 +26,25 @@ const callGeminiAPI = async (action, payload) => {
         const data = await response.json();
         return data.text;
     } catch (error) {
+        // Handle timeout
+        if (error.name === 'AbortError') {
+            console.error("Request timeout after 30 seconds");
+
+            // Retry once if this is the first attempt
+            if (retryCount < MAX_RETRIES) {
+                console.log(`Retrying... (Attempt ${retryCount + 2}/${MAX_RETRIES + 1})`);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+                return callGeminiAPI(action, payload, retryCount + 1);
+            }
+
+            throw new Error("Request timeout. The AI service is taking too long to respond. Please try again.");
+        }
+
+        // Handle network errors
+        if (error.message.includes('Failed to fetch')) {
+            throw new Error("Network error. Please check your internet connection.");
+        }
+
         console.error("Failed to call Gemini API:", error);
         throw error;
     }
