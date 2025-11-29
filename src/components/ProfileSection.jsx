@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getInitials, generateAvatarColor, getAvatarUrl } from '../utils/avatarUtils';
 import { Settings, LogOut, HelpCircle, CreditCard, Globe, Download, Check } from 'lucide-react';
-import SettingsModal from './SettingsModal';
 import './ProfileSection.css';
 
 const ProfileSection = () => {
@@ -12,7 +11,6 @@ const ProfileSection = () => {
     const { user, profile, isAuthenticated, logout } = useAuth();
     const { language, changeLanguage, t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -93,7 +91,7 @@ const ProfileSection = () => {
                                 className="menu-item"
                                 onClick={() => {
                                     setIsOpen(false);
-                                    setIsSettingsOpen(true);
+                                    navigate('/settings');
                                 }}
                             >
                                 <Settings size={16} />
@@ -146,11 +144,6 @@ const ProfileSection = () => {
                     </div>
                 </div>
             </div>
-
-            <SettingsModal
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
-            />
         </>
     );
 };

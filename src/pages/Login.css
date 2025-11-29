@@ -223,6 +223,10 @@
 }
 
 @media (max-width: 480px) {
+    .auth-container {
+        padding: 1rem 0.5rem;
+    }
+
     .auth-header-outside {
         padding: 0 1rem;
     }
@@ -236,7 +240,7 @@
     }
 
     .auth-card {
-        padding: 2.5rem 2rem;
+        padding: 1.5rem;
     }
 
     .back-to-home-fixed {

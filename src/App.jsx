@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import SettingsPage from './pages/SettingsPage';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
@@ -19,8 +20,8 @@ function AppContent() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  // Hide sidebar and theme toggle on auth pages
-  const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname);
+  // Hide sidebar on auth pages and settings page
+  const hideSidebar = ['/login', '/register', '/forgot-password', '/reset-password', '/settings'].includes(location.pathname);
 
   return (
     <div className="app-container">
@@ -33,8 +34,8 @@ function AppContent() {
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
       )}
-      {!isAuthPage && <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />}
-      <main className={`main-content ${isSidebarOpen && !isAuthPage ? 'sidebar-open' : ''}`}>
+      {!hideSidebar && <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />}
+      <main className={`main-content ${isSidebarOpen && !hideSidebar ? 'sidebar-open' : ''}`}>
         <Routes>
           <Route path="/" element={<Home isSidebarOpen={isSidebarOpen} />} />
           <Route path="/result" element={<Result />} />
@@ -42,6 +43,7 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
