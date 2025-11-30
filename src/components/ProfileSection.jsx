@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getInitials, generateAvatarColor, getAvatarUrl } from '../utils/avatarUtils';
-import { Settings, LogOut, HelpCircle, CreditCard, Globe, Download, Check } from 'lucide-react';
+import { Settings, LogOut, HelpCircle, Globe, Check, MoreHorizontal } from 'lucide-react';
 import './ProfileSection.css';
 
 const ProfileSection = () => {
@@ -108,14 +108,6 @@ const ProfileSection = () => {
                                 <HelpCircle size={16} />
                                 <span>{t('menu.help')}</span>
                             </button>
-                            <button className="menu-item">
-                                <CreditCard size={16} />
-                                <span>{t('menu.upgrade')}</span>
-                            </button>
-                            <button className="menu-item">
-                                <Download size={16} />
-                                <span>{t('menu.download')}</span>
-                            </button>
                             <div className="menu-divider"></div>
                             <button className="menu-item logout" type="button" onClick={handleLogout}>
                                 <LogOut size={16} />
@@ -142,6 +134,7 @@ const ProfileSection = () => {
                         <div className="profile-name">{displayName}</div>
                         <div className="profile-email">{email}</div>
                     </div>
+                    <MoreHorizontal size={20} className="profile-more-icon" />
                 </div>
             </div>
         </>

@@ -323,4 +323,42 @@ export const authService = {
             return { error };
         }
     },
+
+    /**
+     * Upload user avatar
+     * @param {string} userId - User ID
+     * @param {File} file - Avatar image file
+     * @param {string} oldAvatarUrl - Old avatar URL to delete
+     * @returns {Promise<{url, error}>}
+     */
+    async uploadUserAvatar(userId, file, oldAvatarUrl) {
+        try {
+            const { storageService } = await import('./storage');
+
+            // Upload new avatar
+            const { url, path, error: uploadError } = await storageService.uploadAvatar(userId, file);
+            if (uploadError) throw uploadError;
+
+            // Update profile with new avatar URL
+            const { error: updateError } = await supabase
+                .from('user_profiles')
+                .update({
+                    avatar_url: url,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('id', userId);
+
+            if (updateError) throw updateError;
+
+            // Delete old avatar if exists
+            if (oldAvatarUrl) {
+                await storageService.deleteAvatar(oldAvatarUrl);
+            }
+
+            return { url, error: null };
+        } catch (error) {
+            console.error('Upload user avatar error:', error);
+            return { url: null, error };
+        }
+    },
 };

@@ -73,7 +73,7 @@
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
-    padding: 3rem 2.5rem;
+    padding: 3rem 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
@@ -240,7 +240,7 @@
     }
 
     .auth-card {
-        padding: 1.5rem;
+        padding: 1.5rem 1rem;
     }
 
     .back-to-home-fixed {

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { X, User, Lock, Bell, Moon, Info, HelpCircle, Trash2, ChevronRight, AlertTriangle, Check, Loader } from 'lucide-react';
+import { X, User, Lock, Bell, Moon, Info, HelpCircle, Trash2, ChevronRight, AlertTriangle, Check, Loader, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import './SettingsModal.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
-    const { user, profile, updateProfile, updatePassword, deleteAccount } = useAuth();
+    const { user, profile, updateProfile, updatePassword, deleteAccount, uploadAvatar } = useAuth();
     const { t } = useLanguage();
     const { theme, toggleTheme } = useTheme();
     const [activeView, setActiveView] = useState('main'); // 'main', 'profile', 'password', 'delete'
@@ -20,6 +20,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
         confirmPassword: ''
     });
     const [deleteConfirm, setDeleteConfirm] = useState('');
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
     if (!isOpen) return null;
 
@@ -88,6 +89,40 @@ const SettingsModal = ({ isOpen, onClose }) => {
         }
     };
 
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setMessage({ type: 'error', text: 'Please select an image file' });
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            setMessage({ type: 'error', text: 'Image size should be less than 5MB' });
+            return;
+        }
+
+        try {
+            setUploadingAvatar(true);
+            setMessage({ type: '', text: '' });
+
+            const { success, error } = await uploadAvatar(file);
+
+            if (success) {
+                setMessage({ type: 'success', text: 'Profile photo updated!' });
+            } else {
+                setMessage({ type: 'error', text: error?.message || 'Failed to upload avatar' });
+            }
+        } catch (error) {
+            setMessage({ type: 'error', text: 'An unexpected error occurred' });
+        } finally {
+            setUploadingAvatar(false);
+        }
+    };
+
     const getInitials = () => {
         if (profile?.display_name) {
             return profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -121,7 +156,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
                         <div className="settings-card user-card" onClick={() => setActiveView('profile')}>
                             <div className="user-info">
                                 <div className="user-avatar-settings">
-                                    {getInitials()}
+                                    {profile?.avatar_url ? (
+                                        <img src={profile.avatar_url} alt={profile.display_name || 'User'} />
+                                    ) : (
+                                        getInitials()
+                                    )}
                                 </div>
                                 <div className="user-details">
                                     <h3>{profile?.display_name || 'User'}</h3>
@@ -229,6 +268,28 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                 <span>{message.text}</span>
                             </div>
                         )}
+
+                        <div className="avatar-upload-section">
+                            <div className="avatar-preview-large">
+                                {profile?.avatar_url ? (
+                                    <img src={profile.avatar_url} alt={profile.display_name || 'User'} />
+                                ) : (
+                                    <div className="avatar-placeholder-large">{getInitials()}</div>
+                                )}
+                                <label className="avatar-upload-btn" htmlFor="avatar-upload">
+                                    {uploadingAvatar ? <Loader className="spin" size={20} /> : <Camera size={20} />}
+                                </label>
+                                <input
+                                    type="file"
+                                    id="avatar-upload"
+                                    accept="image/*"
+                                    onChange={handleAvatarChange}
+                                    disabled={uploadingAvatar}
+                                    hidden
+                                />
+                            </div>
+                            <p className="avatar-hint">Click camera icon to change photo</p>
+                        </div>
 
                         <form onSubmit={handleUpdateProfile} className="settings-form-new">
                             <div className="form-group-new">

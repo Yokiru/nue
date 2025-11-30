@@ -4,14 +4,24 @@ import { User, Lock, Bell, Moon, Info, HelpCircle, Trash2, ChevronRight, AlertTr
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { getAvatarUrl } from '../utils/avatarUtils';
 import './SettingsPage.css';
+import './AvatarUpload.css';
 
 const SettingsPage = () => {
     const navigate = useNavigate();
-    const { user, profile, updateProfile, updatePassword, deleteAccount } = useAuth();
+    const { user, profile, updateProfile, updatePassword, deleteAccount, uploadAvatar } = useAuth();
     const { t } = useLanguage();
     const { theme, toggleTheme } = useTheme();
     const [activeView, setActiveView] = useState('main'); // 'main', 'profile', 'password', 'delete'
+
+    console.log('SettingsPage Debug:', {
+        profile,
+        user,
+        avatarUrl: getAvatarUrl(profile || user),
+        profileAvatar: profile?.avatar_url
+    });
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -22,6 +32,9 @@ const SettingsPage = () => {
         confirmPassword: ''
     });
     const [deleteConfirm, setDeleteConfirm] = useState('');
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
@@ -86,6 +99,54 @@ const SettingsPage = () => {
         }
     };
 
+    const handleAvatarChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Validate file size (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                setMessage({ type: 'error', text: 'File size must be less than 2MB' });
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                setMessage({ type: 'error', text: 'File must be an image (JPEG, PNG, or WebP)' });
+                return;
+            }
+
+            setAvatarFile(file);
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+            setMessage({ type: '', text: '' });
+        }
+    };
+
+    const handleAvatarUpload = async () => {
+        if (!avatarFile) return;
+
+        setUploadingAvatar(true);
+        setMessage({ type: '', text: '' });
+
+        const { success, error } = await uploadAvatar(avatarFile);
+
+        if (success) {
+            setMessage({ type: 'success', text: 'Avatar uploaded successfully!' });
+            setAvatarFile(null);
+            setAvatarPreview(null);
+            setTimeout(() => {
+                setMessage({ type: '', text: '' });
+            }, 3000);
+        } else {
+            setMessage({ type: 'error', text: error?.message || 'Failed to upload avatar' });
+        }
+        setUploadingAvatar(false);
+    };
+
     const getInitials = () => {
         if (profile?.display_name) {
             return profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -124,7 +185,15 @@ const SettingsPage = () => {
                         <div className="settings-card user-card" onClick={() => setActiveView('profile')}>
                             <div className="user-info">
                                 <div className="user-avatar-settings">
-                                    {getInitials()}
+                                    {getAvatarUrl(profile || user) ? (
+                                        <img
+                                            src={getAvatarUrl(profile || user)}
+                                            alt="Profile"
+                                            className="avatar-image-settings"
+                                        />
+                                    ) : (
+                                        getInitials()
+                                    )}
                                 </div>
                                 <div className="user-details">
                                     <h3>{profile?.display_name || 'User'}</h3>
@@ -139,17 +208,6 @@ const SettingsPage = () => {
                             <h4 className="section-title">Other settings</h4>
 
                             <div className="settings-card-group">
-                                <button className="settings-card-item" onClick={() => {
-                                    setActiveView('profile');
-                                    setMessage({ type: '', text: '' });
-                                }}>
-                                    <div className="card-item-left">
-                                        <User size={20} />
-                                        <span>Profile details</span>
-                                    </div>
-                                    <ChevronRight size={20} className="chevron-icon" />
-                                </button>
-
                                 <button className="settings-card-item" onClick={() => {
                                     setActiveView('password');
                                     setMessage({ type: '', text: '' });
@@ -230,6 +288,46 @@ const SettingsPage = () => {
                                 <span>{message.text}</span>
                             </div>
                         )}
+
+                        {/* Avatar Upload Section */}
+                        <div className="avatar-upload-section">
+                            <div className="avatar-upload-container">
+                                <div className="avatar-display">
+                                    {avatarPreview ? (
+                                        <img src={avatarPreview} alt="Avatar preview" className="avatar-preview-img" />
+                                    ) : getAvatarUrl(profile || user) ? (
+                                        <img src={getAvatarUrl(profile || user)} alt="Current avatar" className="avatar-preview-img" />
+                                    ) : (
+                                        <div className="avatar-placeholder">
+                                            {getInitials()}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="avatar-upload-controls">
+                                    <input
+                                        type="file"
+                                        id="avatar-upload"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handleAvatarChange}
+                                        className="avatar-input-hidden"
+                                    />
+                                    <label htmlFor="avatar-upload" className="avatar-upload-btn">
+                                        Choose Photo
+                                    </label>
+                                    {avatarFile && (
+                                        <button
+                                            type="button"
+                                            onClick={handleAvatarUpload}
+                                            className="avatar-save-btn"
+                                            disabled={uploadingAvatar}
+                                        >
+                                            {uploadingAvatar ? <Loader className="spin" size={16} /> : 'Upload'}
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="avatar-hint">JPG, PNG or WebP. Max size 2MB.</p>
+                            </div>
+                        </div>
 
                         <form onSubmit={handleUpdateProfile} className="settings-form-page">
                             <div className="form-group-page">

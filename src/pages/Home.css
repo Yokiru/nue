@@ -4,10 +4,12 @@
     align-items: flex-start;
     justify-content: flex-start;
     min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
     padding: 0 1rem;
     text-align: left;
     position: relative;
-    padding-top: 25vh;
+    padding-top: 15vh;
     padding-bottom: 8rem;
 }
 
@@ -172,7 +174,7 @@
     justify-content: flex-start;
     gap: 0.75rem;
     max-width: 48rem;
-    margin-bottom: auto;
+    margin-bottom: 20vh;
     width: 100%;
     margin-left: auto;
     margin-right: auto;

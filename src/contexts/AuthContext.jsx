@@ -264,6 +264,36 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const uploadAvatar = async (file) => {
+        try {
+            if (!user) {
+                throw new Error('No user logged in');
+            }
+
+            setLoading(true);
+            const oldAvatarUrl = profile?.avatar_url;
+
+            const { url, error } = await authService.uploadUserAvatar(user.id, file, oldAvatarUrl);
+
+            if (error) throw error;
+
+            // Update local profile state
+            const updatedProfile = {
+                ...profile,
+                avatar_url: url
+            };
+            setProfile(updatedProfile);
+            localStorage.setItem('nue_user_profile', JSON.stringify(updatedProfile));
+
+            return { success: true, url, error: null };
+        } catch (error) {
+            console.error('Upload avatar error:', error);
+            return { success: false, url: null, error };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const value = {
         user,
         profile,
@@ -275,6 +305,7 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
         updatePassword,
         deleteAccount,
+        uploadAvatar,
         isAuthenticated: !!user,
     };
 

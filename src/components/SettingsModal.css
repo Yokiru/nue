@@ -141,30 +141,8 @@
     border-color: rgba(0, 0, 0, 0.12);
 }
 
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.user-avatar-settings {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #D1CFC0 0%, #a8a699 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 1.3rem;
-    color: #1F1F1F;
-}
-
-.user-details h3 {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 4px;
+color: var(--text-primary);
+margin: 0 0 4px;
 }
 
 .user-details p {
@@ -315,18 +293,6 @@
     padding: 28px;
     overflow-y: auto;
     flex: 1;
-}
-
-.settings-detail-view h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 28px;
-}
-
-/* Message */
-.settings-message-new {
-    display: flex;
     align-items: center;
     gap: 10px;
     padding: 14px 18px;

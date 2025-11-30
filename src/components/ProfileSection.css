@@ -82,6 +82,17 @@
     text-overflow: ellipsis;
 }
 
+.profile-more-icon {
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.profile-section:hover .profile-more-icon {
+    opacity: 1;
+}
+
 /* Profile Menu */
 .profile-menu {
     position: absolute;

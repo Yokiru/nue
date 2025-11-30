@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import './Card.css';
 
 const Card = ({ title, content }) => {
@@ -15,7 +16,9 @@ const Card = ({ title, content }) => {
             }}
         >
             <h2 className="card-title">{title}</h2>
-            <p className="card-content">{content}</p>
+            <div className="card-content">
+                <ReactMarkdown>{content}</ReactMarkdown>
+            </div>
         </motion.div>
     );
 };
