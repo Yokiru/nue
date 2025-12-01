@@ -355,7 +355,9 @@ const Result = () => {
     return (
         <div className="result-container">
             <header className="result-header">
-                <h1 className="topic-title">{displayTitle}</h1>
+                <div className="topic-title-container">
+                    <h1 className="topic-title">{displayTitle}</h1>
+                </div>
                 <button onClick={handleHome} className="icon-button" aria-label="Home">
                     <Home size={24} />
                 </button>
