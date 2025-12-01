@@ -33,6 +33,7 @@ const Result = () => {
     const [displayTitle, setDisplayTitle] = useState(query);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
     const hasFetchedRef = useRef(false);
+    const indicatorsRef = useRef(null);
 
     // Dynamic loading messages
     const loadingMessages = [
@@ -53,6 +54,20 @@ const Result = () => {
 
         return () => clearInterval(interval);
     }, [loading, loadingMessages.length]);
+
+    // Auto-scroll active indicator into view
+    useEffect(() => {
+        if (indicatorsRef.current) {
+            const activeIndicator = indicatorsRef.current.querySelector('.indicator.active');
+            if (activeIndicator) {
+                activeIndicator.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
+    }, [currentIndex, currentQuizIndex, showQuiz, showFeedback]);
 
     useEffect(() => {
         // Wait for auth to load
@@ -394,21 +409,54 @@ const Result = () => {
                     Back
                 </button>
 
-                <div className="progress-indicators">
+                <div className="progress-indicators" ref={indicatorsRef}>
                     {cards.map((_, idx) => (
                         <div
                             key={idx}
+                            onClick={() => {
+                                if (!generating) {
+                                    setShowFeedback(false);
+                                    setShowQuiz(false);
+                                    setCurrentIndex(idx);
+                                }
+                            }}
                             className={`indicator ${!showFeedback && !showQuiz && idx === currentIndex ? 'active' : ''}`}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Go to card ${idx + 1}`}
                         />
                     ))}
                     {quizMode && quizQuestions.map((_, idx) => (
                         <div
                             key={`quiz-${idx}`}
+                            onClick={() => {
+                                if (!generating) {
+                                    setShowFeedback(false);
+                                    setShowQuiz(true);
+                                    setCurrentQuizIndex(idx);
+                                }
+                            }}
                             className={`indicator ${showQuiz && idx === currentQuizIndex ? 'active' : ''}`}
                             style={{ background: 'var(--accent)' }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Go to quiz question ${idx + 1}`}
                         />
                     ))}
-                    {!quizMode && <div className={`indicator feedback-indicator ${showFeedback ? 'active' : ''}`} />}
+                    {!quizMode && (
+                        <div
+                            onClick={() => {
+                                if (!generating) {
+                                    setShowFeedback(true);
+                                    setShowQuiz(false);
+                                }
+                            }}
+                            className={`indicator feedback-indicator ${showFeedback ? 'active' : ''}`}
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Go to feedback"
+                        />
+                    )}
                 </div>
 
                 <button
