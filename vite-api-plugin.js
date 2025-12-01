@@ -15,7 +15,7 @@ export default function apiServer() {
                 try {
                     // 1. Setup Environment
                     const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
-                    const API_KEY = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || 'AIzaSyADBT-tPleDGP_byF87t2E9o7w8YAvT16U';
+                    const API_KEY = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
                     console.log('🔑 API Key available:', !!API_KEY);
 
